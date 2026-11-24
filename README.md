@@ -12,8 +12,19 @@
   <a href="./README_ZH.md">中文</a> ·
   <a href="./CONTRIBUTING.md">Contributing</a> ·
   <a href="./LICENSE">LGPL-3.0-only</a> ·
-  <a href="https://inkstone-demo.pages.dev/">Demo</a>
+  <a href="https://github.com/shuaiplus/inkstone">Upstream</a>
 </p>
+
+> [!NOTE]
+> **Upstream Attribution & Modification Notice (`LGPL-3.0-only`)**
+>
+> This repository is a modified derivative based on **[shuaiplus/inkstone](https://github.com/shuaiplus/inkstone)** (upstream commit `f59087f`, modified in 2026-11) and remains licensed under [LGPL-3.0-only](./LICENSE). Huge thanks to [@shuaiplus](https://github.com/shuaiplus) for building the original Inkstone notebook!
+>
+> **Key additions in this edition:**
+> - **WeChat Moments-style Blog Homepage (`/`)**: Publish selected notes directly onto a Moments timeline with 9-grid photo galleries, full-screen image lightbox, tag filtering, search, and rate-limited visitor likes.
+> - **Modal Reader & Encrypted Moments**: Open full Markdown articles in an inline popup modal without leaving the timeline, or publish passcode-protected Moments with zero-leakage server responses and exponential-backoff anti-brute-force protection.
+> - **Dedicated Private Notebook Entry (`/notes`)**: Moves the private notebook workspace and login UI to `/notes` (also `/login`, `/admin`, `/n/:id`) with `noindex` protection while keeping `/` as the public Moments feed.
+> - **Custom Branding & Image Cropper**: Built-in owner settings for custom Moments cover photos, rounded-corner site logo/favicon synced across all routes, custom title, and bio, complete with interactive drag-and-zoom cropping.
 
 ## About
 

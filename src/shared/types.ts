@@ -16,6 +16,8 @@ export interface PublicUser {
 
 export interface SiteInfo {
   name: string
+  logoUrl?: string
+  blogTitle?: string
 
   initialized: boolean
 
@@ -468,6 +470,7 @@ export interface ShareInfo {
   hasPassword: boolean
   expiresAt: number | null
   views: number
+  listed: boolean
   createdAt: number
 }
 
@@ -482,8 +485,62 @@ export interface PublicNote {
   updatedAt: number
   createdAt: number
   author: { name: string; avatarUrl: string }
-  site: { name: string }
+  site: { name: string; logoUrl?: string }
   share: { slug: string }
+}
+
+export interface BlogSettings {
+  coverUrl: string
+  logoUrl: string
+  title: string
+  bio: string
+}
+
+export interface PublicBlogImage {
+  src: string
+  alt: string
+}
+
+export interface PublicBlogTag {
+  name: string
+  count: number
+}
+
+export interface PublicBlogPost {
+  slug: string
+  title: string
+  locked: boolean
+  previewText: string
+  hasMoreContent: boolean
+  images: PublicBlogImage[]
+  imageCount: number
+  tags: string[]
+  wordCount: number
+  isPinned: boolean
+  views: number
+  likes: number
+  publishedAt: number
+  updatedAt: number
+  createdAt: number
+  author: { name: string; avatarUrl: string }
+}
+
+export interface PublicBlogProfile {
+  name: string
+  avatarUrl: string
+  siteName: string
+  blogTitle: string
+  bio: string
+  coverUrl: string
+  logoUrl: string
+  totalPosts: number
+}
+
+export interface PublicBlogResponse {
+  profile: PublicBlogProfile
+  tags: PublicBlogTag[]
+  posts: PublicBlogPost[]
+  nextCursor: string | null
 }
 
 

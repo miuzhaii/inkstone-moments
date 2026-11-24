@@ -5,6 +5,7 @@ import { LIMITS } from '@shared/constants';
 import type { NoteSummary, Tag, ViewKind } from '@shared/types';
 import { compareTagNames } from '@shared/markdown-utils';
 import { cn } from '../../lib/cn';
+import { resolveSiteBrandName } from '../../lib/branding';
 import { Avatar, IconButton, Logo, SectionLabel } from '../../components/primitives';
 import { Menu, Tooltip, confirm, useContextMenu, type MenuItem } from '../../components/overlay';
 import { switchThemeWithTransition, useUi } from '../../store/ui';
@@ -25,14 +26,20 @@ export function Sidebar({ collapsed = false, onCollapse, }: {
 }) {
     const view = useUi((s) => !s.listCollapsed && !s.searchList ? s.view : null);
     const openView = useUi((s) => s.openView);
+    const site = useSession((s) => s.site);
     const counts = useNavigationCounts();
+    const brandName = site ? resolveSiteBrandName(site.name, site.blogTitle) : t("common.product_name");
     return (<>
         {collapsed ? <SidebarRail onExpand={onCollapse}/> : (<aside className="flex h-full min-h-0 flex-col bg-[var(--bg-sunken)]">
       <header className="flex h-11 shrink-0 items-center justify-between border-b border-[var(--border-subtle)] px-3">
         <div className="flex min-w-0 items-center gap-[9px] select-none">
-          <Logo size={24}/>
+          {site?.logoUrl ? (
+            <img src={site.logoUrl} alt="" width={24} height={24} className="size-6 shrink-0 rounded-[6px] object-cover"/>
+          ) : (
+            <Logo size={24}/>
+          )}
           <span className="min-w-0 truncate font-serif text-[15.5px] font-semibold tracking-[0.02em] text-[var(--text-primary)]">
-            {t("common.product_name")}
+            {brandName}
           </span>
         </div>
         {onCollapse && (<Tooltip label={t("sidebar.collapse_navigation")}>

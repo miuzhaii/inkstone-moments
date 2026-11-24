@@ -4,13 +4,20 @@ import { selectAttachmentStorage } from '../attachments/backend'
 import type { Env, Variables } from '../env'
 import { rowToUser, USER_COLUMNS } from '../middleware/auth'
 import { getAllowRegistration } from './instance-settings'
+import { getBlogSettings } from './blog-settings'
 
 export async function buildSiteInfo(env: Env): Promise<SiteInfo> {
-  const row = await env.DB.prepare(`SELECT 1 AS n FROM users LIMIT 1`).first<{ n: number }>()
+  const [row, registrationOpen, blogSettings] = await Promise.all([
+    env.DB.prepare(`SELECT 1 AS n FROM users LIMIT 1`).first<{ n: number }>(),
+    getAllowRegistration(env.DB),
+    getBlogSettings(env.DB),
+  ])
   return {
     name: env.APP_NAME || 'Inkstone',
+    logoUrl: blogSettings.logoUrl || undefined,
+    blogTitle: blogSettings.title || undefined,
     initialized: (row?.n ?? 0) > 0,
-    registrationOpen: await getAllowRegistration(env.DB),
+    registrationOpen,
     r2Enabled: Boolean(env.FILES),
     kvEnabled: Boolean(env.FILES_KV),
     attachmentStorage: selectAttachmentStorage(env),

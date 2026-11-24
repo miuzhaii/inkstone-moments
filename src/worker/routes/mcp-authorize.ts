@@ -292,7 +292,7 @@ function errorPage(message: string, locale: AppLocale, currentUrl: string): stri
         <span class="brand-mark">${logoMark()}</span>
         <div class="request-copy"><h1>${copy.authorizationFailed}</h1><p>${escapeHtml(message)}</p></div>
       </section>
-      <div class="actions"><a class="primary link" href="/">${copy.openInkstone}</a></div>
+      <div class="actions"><a class="primary link" href="/notes">${copy.openInkstone}</a></div>
     </div>`, locale, currentUrl)
 }
 

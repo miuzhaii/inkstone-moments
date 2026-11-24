@@ -9,6 +9,7 @@ import type {
   BackupTargetInput,
   BackupTargetPatchInput,
   Backlink,
+  BlogSettings,
   Folder,
   GraphResponse,
   ImportResult,
@@ -21,6 +22,7 @@ import type {
   NoteVersionMeta,
   PatchNoteBody,
   PasswordLoginResult,
+  PublicBlogResponse,
   PublicUser,
   PublicNote,
   SearchResponse,
@@ -481,11 +483,44 @@ export const api = {
       request<{ shares: ShareListItem[] }>('/api/share', { signal }),
     get: (noteId: string, signal?: AbortSignal) =>
       request<{ share: ShareInfo | null }>(`/api/share/${noteId}`, { signal }),
-    create: (noteId: string, body: { password?: string | null; expiresIn?: number | null }) =>
+    create: (noteId: string, body: { password?: string | null; expiresIn?: number | null; listed?: boolean }) =>
       request<{ share: ShareInfo }>(`/api/share/${noteId}`, { method: 'POST', body }),
     remove: (noteId: string) => request<{ ok: true }>(`/api/share/${noteId}`, { method: 'DELETE' }),
     read: (slug: string, password?: string, signal?: AbortSignal) =>
       request<PublicNote>(`/api/public/${slug}`, { method: 'POST', body: { password }, signal }),
+    blog: (
+      params: { tag?: string; q?: string; cursor?: string; limit?: number } = {},
+      signal?: AbortSignal,
+    ) =>
+      request<PublicBlogResponse>(
+        `/api/public/blog${toQuery({
+          tag: params.tag,
+          q: params.q,
+          cursor: params.cursor,
+          limit: params.limit,
+        })}`,
+        { signal },
+      ),
+    likeBlogPost: (slug: string, action: 'like' | 'unlike') =>
+      request<{ slug: string; likes: number }>(`/api/public/blog/${encodeURIComponent(slug)}/like`, {
+        method: 'POST',
+        body: { action },
+      }),
+    blogSettings: {
+      get: (signal?: AbortSignal) =>
+        request<{ settings: BlogSettings; canManage: boolean }>('/api/share/blog-settings', { signal }),
+      save: (body: Partial<BlogSettings>) =>
+        request<{ settings: BlogSettings }>('/api/share/blog-settings', { method: 'PUT', body }),
+      upload: (kind: 'cover' | 'logo', file: File) => {
+        const form = new FormData()
+        form.append('kind', kind)
+        form.append('file', file)
+        return request<{ url: string; settings: BlogSettings }>('/api/share/blog-settings/upload', {
+          method: 'POST',
+          formData: form,
+        })
+      },
+    },
   },
 
   transfer: {

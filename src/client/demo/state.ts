@@ -1,4 +1,5 @@
 import { LIMITS, mergeSettings } from '@shared/constants'
+import { ZH_CN_MESSAGES } from '@shared/locales/zh-CN'
 import { countText, deriveExcerpt, deriveTitle, extractTags, sortTagNames } from '@shared/markdown-utils'
 import { truncateText } from '@shared/text-utils'
 import { welcomeNoteTemplates } from '@shared/welcome-notes'
@@ -6,6 +7,7 @@ import type {
   Attachment,
   BackupRun,
   BackupTarget,
+  BlogSettings,
   Folder,
   Note,
   NoteSummary,
@@ -24,6 +26,7 @@ export interface DemoAttachment {
 export interface DemoShare {
   info: ShareInfo
   password: string | null
+  likes: number
 }
 
 export interface DemoState {
@@ -33,6 +36,7 @@ export interface DemoState {
   cursor: number
   user: PublicUser
   settings: UserSettings
+  blogSettings: BlogSettings
   notes: Map<string, Note>
   folders: Map<string, Folder>
   tagIds: Map<string, string>
@@ -54,26 +58,97 @@ export function newDemoId(): string {
 
 export function createDemoState(): DemoState {
   const now = Date.now()
+  const hour = 3_600_000
+  const day = 86_400_000
   const folders: Folder[] = []
-  const notes = welcomeNoteTemplates('zh-CN').map(({ content }, index) =>
-    note(seedId(20 + index), content, null, now - index, { isPinned: true, isStarred: true }),
+
+  const demoMoments: Array<{
+    slug: string
+    content: string
+    publishedAt: number
+    views: number
+    isPinned?: boolean
+  }> = [
+    {
+      slug: 'inkstone-moments-blog',
+      content: ZH_CN_MESSAGES['seed.demo_moment_1'],
+      publishedAt: now - 25 * 60_000,
+      views: 42,
+      isPinned: true,
+    },
+    {
+      slug: 'autumn-weekend-walk',
+      content: ZH_CN_MESSAGES['seed.demo_moment_2'],
+      publishedAt: now - 5 * hour,
+      views: 31,
+    },
+    {
+      slug: 'cloudflare-workers-blog-notes',
+      content: ZH_CN_MESSAGES['seed.demo_moment_3'],
+      publishedAt: now - day - 2 * hour,
+      views: 87,
+    },
+    {
+      slug: 'november-reading-list',
+      content: ZH_CN_MESSAGES['seed.demo_moment_4'],
+      publishedAt: now - 2 * day - 4 * hour,
+      views: 19,
+    },
+    {
+      slug: 'november-film-roll',
+      content: ZH_CN_MESSAGES['seed.demo_moment_5'],
+      publishedAt: now - 3 * day - 6 * hour,
+      views: 64,
+    },
+  ]
+
+  const momentNotes = demoMoments.map((item, index) =>
+    note(seedId(30 + index), item.content, null, item.publishedAt, {
+      isPinned: item.isPinned ?? false,
+      isStarred: index === 0,
+    }),
   )
+  const welcomeNotes = welcomeNoteTemplates('zh-CN').map(({ content }, index) =>
+    note(seedId(20 + index), content, null, now - (4 + index) * day, {
+      isPinned: false,
+      isStarred: true,
+    }),
+  )
+  const notes = [...momentNotes, ...welcomeNotes]
   const tagIds = new Map<string, string>()
   for (const item of notes) {
     for (const name of item.tags) if (!tagIds.has(name)) tagIds.set(name, newDemoId())
   }
   const tagColors = new Map<string, string | null>([['getting-started', '#6366f1']])
-  const preferredLocaleTag = notes[0]?.tags.find((name) => name !== 'Inkstone')
+  const preferredLocaleTag = welcomeNotes[0]?.tags.find((name) => name !== 'Inkstone')
   if (preferredLocaleTag) tagColors.set(preferredLocaleTag, '#b5482e')
+
+  const initialShares: Array<[string, DemoShare]> = demoMoments.map((item, index) => {
+    const shareNote = momentNotes[index]!
+    const info: ShareInfo = {
+      slug: item.slug,
+      noteId: shareNote.id,
+      url: `/s/${item.slug}`,
+      hasPassword: false,
+      expiresAt: null,
+      views: item.views,
+      listed: true,
+      createdAt: item.publishedAt,
+    }
+    return [shareNote.id, { info, password: null, likes: 3 + index * 2 }]
+  })
+
   const welcomeShare: ShareInfo = {
     slug: 'welcome',
-    noteId: notes[0]!.id,
+    noteId: welcomeNotes[0]!.id,
     url: '/s/welcome',
     hasPassword: false,
     expiresAt: null,
     views: 12,
-    createdAt: now - 86_400_000 * 4,
+    listed: true,
+    createdAt: now - 4 * day,
   }
+  initialShares.push([welcomeShare.noteId, { info: welcomeShare, password: null, likes: 2 }])
 
   return {
     authenticated: false,
@@ -84,19 +159,25 @@ export function createDemoState(): DemoState {
       id: seedId(1),
       login: 'admin',
       username: 'admin',
-      name: 'Demo Admin',
+      name: 'Inkstone',
       avatarUrl: 'dicebear:0123456789abcdef0123456789abcdef',
       role: 'owner',
-      createdAt: now - 86_400_000 * 30,
+      createdAt: now - 30 * day,
     },
     settings: mergeSettings({ sync: { realtime: false, pollIntervalMs: 300_000 } }),
+    blogSettings: {
+      coverUrl: '',
+      logoUrl: '',
+      title: '',
+      bio: '',
+    },
     notes: new Map(notes.map((item) => [item.id, item])),
     folders: new Map(folders.map((item) => [item.id, item])),
     tagIds,
     tagColors,
     versions: new Map(),
     attachments: new Map(),
-    shares: new Map([[welcomeShare.noteId, { info: welcomeShare, password: null }]]),
+    shares: new Map(initialShares),
     backupTargets: new Map(),
     backupRuns: [],
   }

@@ -737,3 +737,184 @@ export function slugifyHeading(text: string): string {
       .replace(/^-+|-+$/g, '') || 'section'
   )
 }
+
+export interface MarkdownImage {
+  src: string
+  alt: string
+}
+
+export interface MomentsPreview {
+  text: string
+  truncated: boolean
+  hasRichBlocks: boolean
+}
+
+const SHARE_ATTACHMENT_PATH_RE = /^(\/api\/files\/[0-9a-hjkmnp-tv-z]{26})(?:[?#].*)?$/i
+
+export function rewriteShareImageUrl(src: string, slug: string): string {
+  const trimmed = src.trim()
+  const match = SHARE_ATTACHMENT_PATH_RE.exec(trimmed)
+  if (!match) return trimmed
+  return `${match[1]}?share=${encodeURIComponent(slug)}`
+}
+
+function isSafeImageSrc(src: string): boolean {
+  if (!src) return false
+  if (src.startsWith('//')) return false
+  return src.startsWith('/') || /^https?:\/\//i.test(src)
+}
+
+function parseMarkdownImageDestination(raw: string): string {
+  const trimmed = raw.trim()
+  if (!trimmed) return ''
+  if (trimmed.startsWith('<')) {
+    const end = trimmed.indexOf('>')
+    return end > 1 ? trimmed.slice(1, end).trim() : ''
+  }
+  const space = trimmed.search(/[\s\t\r\n]/)
+  return (space >= 0 ? trimmed.slice(0, space) : trimmed).trim()
+}
+
+export function extractMarkdownImages(content: string): MarkdownImage[] {
+  const safe = stripCodeRegions(splitFrontMatter(content).body)
+  const found: Array<{ index: number; src: string; alt: string }> = []
+
+  const mdImageRe = /!\[([^\]\n]*)\]\(([^)\n]+)\)/g
+  for (const match of safe.matchAll(mdImageRe)) {
+    const src = parseMarkdownImageDestination(match[2] ?? '')
+    if (!isSafeImageSrc(src)) continue
+    found.push({
+      index: match.index ?? 0,
+      src,
+      alt: (match[1] ?? '').trim(),
+    })
+  }
+
+  const htmlImageRe = /<img\b([^>]{1,2000})>/gi
+  for (const match of safe.matchAll(htmlImageRe)) {
+    const attrs = match[1] ?? ''
+    const srcMatch = /\bsrc\s*=\s*(?:"([^"]+)"|'([^']+)'|([^\s"'=<>`]+))/i.exec(attrs)
+    const src = (srcMatch?.[1] ?? srcMatch?.[2] ?? srcMatch?.[3] ?? '').trim()
+    if (!isSafeImageSrc(src)) continue
+    const altMatch = /\balt\s*=\s*(?:"([^"]*)"|'([^']*)')/i.exec(attrs)
+    found.push({
+      index: match.index ?? 0,
+      src,
+      alt: (altMatch?.[1] ?? altMatch?.[2] ?? '').trim(),
+    })
+  }
+
+  found.sort((left, right) => left.index - right.index)
+  const seen = new Set<string>()
+  const images: MarkdownImage[] = []
+  for (const item of found) {
+    if (seen.has(item.src)) continue
+    seen.add(item.src)
+    images.push({ src: item.src, alt: item.alt })
+  }
+  return images
+}
+
+function hasRichMarkdownBlocks(body: string): boolean {
+  if (/^[ \t]{0,3}(?:`{3,}|~{3,})/m.test(body)) return true
+  if (/^[ \t]{0,3}\$\$/m.test(body)) return true
+  if (/^[ \t]{0,3}>[ \t]*\[![A-Za-z]/m.test(body)) return true
+  if (/^[ \t]{0,3}:{3,}[ \t]+(?:details|tabs)\b/m.test(body)) return true
+  if (/^[ \t]{0,3}:{3,}\{tab-set\}/m.test(body)) return true
+  if (/^[ \t]*\|.+\|[ \t]*\r?\n[ \t]*\|[\s:|-]+\|[ \t]*$/m.test(body)) return true
+  if (/^[ \t]{0,3}#{2,6}\s+\S/m.test(body)) return true
+  if (/!\[\[[^[\]\n]{1,400}\]\]/.test(body)) return true
+  return false
+}
+
+export function deriveMomentsPreview(
+  content: string,
+  title = '',
+  maxChars = 420,
+  maxLines = 6,
+): MomentsPreview {
+  const { body } = splitFrontMatter(content)
+  const hasRichBlocks = hasRichMarkdownBlocks(body)
+  let cleaned = stripCodeRegions(body)
+  cleaned = cleaned.replace(/!\[[^\]\n]*\]\([^)\n]+\)/g, '')
+  cleaned = cleaned.replace(/<img\b[^>]{1,2000}>/gi, '')
+  cleaned = cleaned.replace(/!\[\[[^[\]\n]{1,400}\]\]/g, '')
+  cleaned = cleaned.replace(/^ {0,3}(?:[-*_][ \t]*){3,}$/gm, '')
+  cleaned = cleaned.replace(/^[ \t]{0,3}:{3,}.*$/gm, '')
+  cleaned = cleaned.replace(/^[ \t]{0,3}#{1,6}\s+/gm, '')
+  cleaned = cleaned.replace(/^[ \t]{0,3}>[ \t]*\[![A-Za-z][A-Za-z0-9_-]{0,31}\][+-]?[ \t]*/gm, '')
+  cleaned = cleaned.replace(/^[ \t]{0,3}>[ \t]?/gm, '')
+  cleaned = cleaned.replace(/^[ \t]*[-*+][ \t]+\[[ xX]\][ \t]+/gm, '• ')
+  cleaned = cleaned.replace(/^[ \t]*[-*+][ \t]+/gm, '• ')
+  cleaned = cleaned.replace(/^[ \t]*\|[\s:|-]+\|[ \t]*$/gm, '')
+  cleaned = cleaned.replace(/^[ \t]*\|(.*)\|[ \t]*$/gm, (_m, cells: string) =>
+    cells.replace(/\|/g, ' · ').trim(),
+  )
+  cleaned = cleaned.replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
+  cleaned = cleaned.replace(/\[\[([^[\]|]+)(?:\|([^[\]]+))?\]\]/g, (_s, a: string, b?: string) => b || a)
+  cleaned = cleaned.replace(/\$\$([\s\S]*?)\$\$/g, ' $1 ')
+  cleaned = cleaned.replace(/\$([^$\n]+)\$/g, ' $1 ')
+  cleaned = cleaned.replace(/(\*\*|__)(.*?)\1/g, '$2')
+  cleaned = cleaned.replace(/(\*|_)(.*?)\1/g, '$2')
+  cleaned = cleaned.replace(/~~(.*?)~~/g, '$1')
+  cleaned = cleaned.replace(/==(.*?)==/g, '$1')
+  cleaned = cleaned.replace(/<[^>]{1,300}>/g, '')
+  cleaned = cleaned.replace(/^\[\^[^\]]+\]:.*$/gm, '')
+  cleaned = cleaned.replace(/\[\^[^\]]+\]/g, '')
+  cleaned = cleaned.replace(/(?:^|\s)\^[A-Za-z0-9][A-Za-z0-9_-]{0,63}\s*$/gm, '')
+
+  const normalizedLines = cleaned
+    .split(/\r?\n/)
+    .map((line) => line.replace(/[ \t]+/g, ' ').trim())
+
+  const paragraphs: string[] = []
+  let previousBlank = true
+  for (const line of normalizedLines) {
+    if (!line) {
+      if (!previousBlank) {
+        paragraphs.push('')
+        previousBlank = true
+      }
+      continue
+    }
+    if (/^(?:#[\p{L}\p{N}_\-/·]{1,60}(?:\s+|$))+$/u.test(line)) {
+      continue
+    }
+    paragraphs.push(line)
+    previousBlank = false
+  }
+  while (paragraphs.length && paragraphs[0] === '') paragraphs.shift()
+  while (paragraphs.length && paragraphs[paragraphs.length - 1] === '') paragraphs.pop()
+
+  const normalizedTitle = title.replace(/\s+/g, ' ').trim().toLocaleLowerCase()
+  if (
+    normalizedTitle &&
+    paragraphs.length > 0 &&
+    paragraphs[0]!.replace(/\s+/g, ' ').trim().toLocaleLowerCase() === normalizedTitle
+  ) {
+    paragraphs.shift()
+    while (paragraphs.length && paragraphs[0] === '') paragraphs.shift()
+  }
+
+  const fullText = paragraphs.join('\n').trim()
+  if (!fullText) {
+    return { text: '', truncated: false, hasRichBlocks }
+  }
+
+  let truncated = false
+  let preview = fullText
+  const visibleLines = fullText.split('\n')
+  if (visibleLines.length > maxLines) {
+    preview = visibleLines.slice(0, maxLines).join('\n').trimEnd()
+    truncated = true
+  }
+  if (preview.length > maxChars) {
+    preview = truncateText(preview, maxChars).replace(/\s+\S*$/, '').trimEnd()
+    truncated = true
+  }
+  if (truncated && !preview.endsWith('…')) {
+    preview = `${preview}…`
+  }
+
+  return { text: preview, truncated, hasRichBlocks }
+}

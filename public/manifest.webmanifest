@@ -4,7 +4,7 @@
   "short_name": "Inkstone",
   "description": "A private, self-hosted Markdown notebook.",
   "lang": "en-US",
-  "start_url": "/",
+  "start_url": "/notes",
   "scope": "/",
   "display": "standalone",
   "background_color": "#faf9f7",

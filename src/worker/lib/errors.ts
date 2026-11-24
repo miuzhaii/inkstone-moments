@@ -34,9 +34,15 @@ export class ApiError extends Error {
 
 export function errorResponse(c: Context, err: unknown): Response {
   if (err instanceof ApiError) {
+    const retryAfter =
+      err.status === 429 &&
+      typeof (err.details as { retryAfter?: unknown } | null)?.retryAfter === 'number'
+        ? Math.max(1, Math.ceil((err.details as { retryAfter: number }).retryAfter))
+        : null
     return c.json(
       { error: { code: err.code, message: err.message, ...(err.details ? { details: err.details } : {}) } },
       err.status,
+      retryAfter ? { 'Retry-After': String(retryAfter) } : undefined,
     )
   }
   console.error('[inkstone] Unhandled error:', err)

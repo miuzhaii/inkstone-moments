@@ -6,6 +6,7 @@ import { Logo } from '../../components/primitives'
 import { Input } from '../../components/form'
 import { cn } from '../../lib/cn'
 import { ApiError } from '../../lib/api'
+import { resolveSiteBrandName } from '../../lib/branding'
 import { t } from '../../lib/i18n'
 import { initialLoginCredentials } from '../../lib/runtime'
 import { useSession } from '../../store/session'
@@ -95,18 +96,22 @@ export function LoginPage() {
         <div className="mb-6 flex flex-col items-center text-center md:mb-8">
           <div
             className={cn(
-              'mb-5 flex size-14 items-center justify-center rounded-[18px]',
+              'mb-5 flex size-14 items-center justify-center overflow-hidden rounded-[18px]',
               'border border-[var(--border-default)] bg-[var(--bg-surface)]',
               'text-[var(--accent)] shadow-[var(--shadow-pop)]',
             )}
           >
-            <Logo size={27} />
+            {site?.logoUrl ? (
+              <img src={site.logoUrl} alt="" className="size-full object-cover" />
+            ) : (
+              <Logo size={27} />
+            )}
           </div>
           <h1
             className="text-[30px] font-semibold tracking-[0.01em] text-[var(--text-primary)]"
             style={{ fontFamily: 'var(--font-serif)' }}
           >
-            {t("common.product_name")}
+            {site ? resolveSiteBrandName(site.name, site.blogTitle) : t("common.product_name")}
           </h1>
           <p className="mt-2.5 text-[13px] leading-relaxed text-[var(--text-tertiary)]">
             {challenge

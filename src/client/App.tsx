@@ -15,21 +15,40 @@ const AppShell = lazy(() =>
 const SharePage = lazy(() =>
   import('./features/share/SharePage').then((module) => ({ default: module.SharePage })),
 )
+const BlogPage = lazy(() =>
+  import('./features/blog/BlogPage').then((module) => ({ default: module.BlogPage })),
+)
 
 export function App() {
 
   useLocale()
   const status = useSession((s) => s.status)
   const load = useSession((s) => s.load)
-  const [shareSlug] = useState(() => {
-    const match = /^\/s\/([A-Za-z0-9_-]+)/.exec(location.pathname)
-    return match?.[1] ?? null
+  const [route] = useState(() => {
+    const pathname = location.pathname
+    const shareMatch = /^\/s\/([A-Za-z0-9_-]+)/.exec(pathname)
+    if (shareMatch?.[1]) return { kind: 'share' as const, slug: shareMatch[1] }
+    if (
+      pathname === '/notes' ||
+      pathname.startsWith('/notes/') ||
+      pathname === '/login' ||
+      pathname.startsWith('/login/') ||
+      pathname === '/admin' ||
+      pathname.startsWith('/admin/') ||
+      /^\/n\/[0-9a-hjkmnp-tv-z]{26}\/?$/i.test(pathname)
+    ) {
+      return { kind: 'notebook' as const }
+    }
+    return { kind: 'blog' as const }
   })
+  const shareSlug = route.kind === 'share' ? route.slug : null
+  const blogMode = route.kind === 'blog'
+  const isPublicPage = Boolean(shareSlug || blogMode)
 
   useEffect(() => {
-    if (shareSlug) return
+    if (isPublicPage) return
     void load()
-  }, [load, shareSlug])
+  }, [load, isPublicPage])
 
   useEffect(() => watchSystemTheme(), [])
 
@@ -38,18 +57,31 @@ export function App() {
   }, [])
 
   useEffect(() => {
-    if (!shareSlug && status !== 'loading') requestOfflineWarmup()
-  }, [shareSlug, status])
+    if (!isPublicPage && status !== 'loading') requestOfflineWarmup()
+  }, [isPublicPage, status])
 
   useEffect(() => {
-    if (shareSlug || status !== 'loading') dismissBootScreen()
-  }, [status, shareSlug])
+    if (isPublicPage || status !== 'loading') dismissBootScreen()
+  }, [status, isPublicPage])
 
   useEffect(() => {
-    if (shareSlug) return
+    if (isPublicPage) return
     const timer = window.setTimeout(() => dismissBootScreen(), 8000)
     return () => window.clearTimeout(timer)
-  }, [shareSlug])
+  }, [isPublicPage])
+
+  if (blogMode) {
+    return (
+      <>
+        <ErrorBoundary>
+          <Suspense fallback={<PageFallback />}>
+            <BlogPage />
+          </Suspense>
+        </ErrorBoundary>
+        <Toaster />
+      </>
+    )
+  }
 
   if (shareSlug) {
     return (

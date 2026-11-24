@@ -965,6 +965,7 @@ export const ZH_CN_MESSAGES = {
     "share.expires_value0": "{value0} 过期",
     "share.generate_public_link": "生成公开链接",
     "share.incorrect_passcode": "口令不正确",
+    "share.in_blog": "已上动态",
     "share.in_trash": "在回收站",
     "share.enter_a_passcode": "请先输入访问口令",
     "share.passcode_too_short": "访问口令至少需要 4 个字符",
@@ -985,6 +986,81 @@ export const ZH_CN_MESSAGES = {
     "share.public_link": "公开链接",
     "share.public_link_created": "公开链接已生成",
     "share.public_links_are_read_only_visitors_can_see_only_the_latest_version_of_t": "公开链接为只读。访问者只能查看这篇笔记的最新内容，无法访问其他笔记。",
+    "share.publish_to_blog": "在博客朋友圈展示",
+    "share.publish_to_blog_description": "开启后将展示在网站首页的朋友圈动态中",
+    "share.publish_to_blog_disabled_passcode": "关闭访问口令后才能发布到首页朋友圈",
+    "share.publish_to_blog_encrypted_description": "已开启访问口令，将以加密动态展示在首页朋友圈，输入正确口令才能打开",
+    "blog.actions": "操作",
+    "blog.all_tags": "全部",
+    "blog.appearance_description": "自定义博客首页的朋友圈封面背景图、网站 Logo、顶部标题和头像下方签名。",
+    "blog.appearance_saved": "博客外观已保存",
+    "blog.appearance_title": "博客外观设置",
+    "blog.back_to_blog": "朋友圈博客",
+    "blog.bio": "个性签名",
+    "blog.bio_placeholder": "显示在封面头像下方的简短签名或站点介绍",
+    "blog.clear_filters": "清除筛选",
+    "blog.collapse_text": "收起",
+    "blog.copy_link": "复制链接",
+    "blog.cover_image": "朋友圈封面背景图",
+    "blog.cover_placeholder": "上传本地图片，或粘贴 https:// 图片链接",
+    "blog.crop_adjust": "重新裁剪",
+    "blog.crop_confirm": "确认裁剪并上传",
+    "blog.crop_cover_title": "裁剪朋友圈封面图",
+    "blog.crop_hint": "拖动图片调整位置，滑动或滚轮缩放大小",
+    "blog.crop_load_failed": "无法读取该图片进行裁剪，请重新选择本地图片上传",
+    "blog.crop_logo_title": "裁剪网站圆角 Logo",
+    "blog.crop_reset": "居中重置",
+    "blog.crop_zoom": "缩放",
+    "blog.custom_title": "朋友圈顶部标题",
+    "blog.custom_title_placeholder": "朋友圈",
+    "blog.empty_description": "在 Inkstone 中打开任意笔记，开启公开链接并打开「在博客朋友圈展示」即可发布到这里。",
+    "blog.empty_filtered_description": "试试切换其他标签，或清空搜索关键词。",
+    "blog.empty_filtered_title": "没有找到匹配的动态",
+    "blog.empty_title": "还没有公开动态",
+    "blog.encrypted_badge": "加密",
+    "blog.encrypted_images_hint": "含 {count} 张图片",
+    "blog.encrypted_moment_hint": "此动态受访问口令保护，输入正确口令后即可查看全文",
+    "blog.encrypted_moment_title": "加密朋友圈动态",
+    "blog.encrypted_security_hint": "已启用防爆破保护，连续输错口令将自动锁定冷却",
+    "blog.expand_text": "全文",
+    "blog.go_to_notebook": "进入笔记本",
+    "blog.image_uploaded": "图片已上传",
+    "blog.like": "赞",
+    "blog.like_failed": "点赞失败，请稍后重试",
+    "blog.liked": "取消",
+    "blog.liked_by_you": "你赞了这条动态",
+    "blog.liked_by_you_and_others": "你和其他 {count} 人觉得很赞",
+    "blog.likes_count": "{count} 人觉得很赞",
+    "blog.load_failed": "无法加载博客动态",
+    "blog.load_more": "加载更多",
+    "blog.loading": "正在加载动态…",
+    "blog.loading_more": "加载中…",
+    "blog.logo_image": "网站 Logo 图标",
+    "blog.logo_placeholder": "上传方形图标，或粘贴 https:// 图标链接",
+    "blog.moments_count": "{count} 条动态",
+    "blog.moments_title": "朋友圈",
+    "blog.more_images": "+{count}",
+    "blog.next_image": "下一张",
+    "blog.no_more_moments": "已经到底啦",
+    "blog.open_article": "阅读全文",
+    "blog.open_blog": "访问博客",
+    "blog.open_standalone": "独立页面打开",
+    "blog.pinned": "置顶",
+    "blog.powered_by": "由 {site} 驱动",
+    "blog.previous_image": "上一张",
+    "blog.refresh": "刷新",
+    "blog.reset_default": "恢复默认",
+    "blog.retry_after_seconds": "尝试次数过多，请 {seconds} 秒后再试",
+    "blog.save_appearance": "保存外观",
+    "blog.scroll_to_top": "回到顶部",
+    "blog.search_placeholder": "搜索动态内容或标题…",
+    "blog.search_toggle": "搜索动态",
+    "blog.unlock_moment": "输入口令解锁",
+    "blog.unlock_submit": "解锁阅读",
+    "blog.unlocked_badge": "已解锁",
+    "blog.unlocked_moment_hint": "本次会话已解锁，点击打开阅读全文",
+    "blog.upload_image": "上传图片",
+    "blog.views_count": "{count} 次浏览",
     "share.refresh_list": "刷新分享列表",
     "share.require_a_passcode_to_view_this_note": "开启后需要输入口令才能查看",
     "share.revoke_link": "撤销链接",
@@ -1162,6 +1238,107 @@ export const ZH_CN_MESSAGES = {
     "workspace.upload_failed": "上传失败",
     "workspace.value0_unchanged_lines_hidden": "… 中间 {value0} 行未展开 …",
     "workspace.will_appear_here": "就会出现在这里。",
+    "seed.demo_moment_1": `---
+title: 把 Inkstone 改成了微信朋友圈风格博客
+tags: [随笔, 折腾, Inkstone]
+---
+
+# 把 Inkstone 改成了微信朋友圈风格博客
+
+早上冲了杯手冲咖啡，顺手给自建的 Markdown 笔记本加了一个 \`/blog\` 微信朋友圈页面。
+
+平时所有笔记都安安静静留在工作台里，想对外展示哪一篇，点开分享打开「在博客朋友圈展示」就会自动出现在这里，写完即发，也不用再维护第二套博客系统了。
+
+![晨光书桌与手冲咖啡](/demo/coffee-desk.jpg)
+`,
+    "seed.demo_moment_2": `---
+title: 周末秋日漫游：银杏、咖啡馆与晚风
+tags: [生活, 摄影, 周末]
+---
+
+# 周末秋日漫游：银杏、咖啡馆与晚风
+
+抓住十一月最后一点金黄色的尾巴。上午去湖边踩银杏叶，下午躲进巷子里的独立咖啡馆听雨看书，窗台上的橘猫睡得比谁都香，傍晚雨停后顺着亮起灯笼的小巷慢慢走回家。
+
+![湖畔金黄银杏大道](/demo/autumn-park.jpg)
+![雨天窗边的拿铁](/demo/rainy-cafe.jpg)
+![窗台书堆旁打盹的橘猫](/demo/books-cat.jpg)
+![雨后微亮的暮色小巷](/demo/night-street.jpg)
+`,
+    "seed.demo_moment_3": `---
+title: Cloudflare Workers + D1 个人知识库博客改造记录
+tags: [技术, Cloudflare, 博客]
+---
+
+# Cloudflare Workers + D1 个人知识库博客改造记录
+
+相比单独搭一套静态博客生成器，直接基于 Inkstone 原有的公开分享表做一层轻量化扩展，可以把“私人记录”与“公开表达”收敛到同一个 Cloudflare Worker 实例里。
+
+![云海晨雾山脊](/demo/mountain-mist.jpg)
+
+## 整体数据流
+
+\`\`\`mermaid
+flowchart LR
+  Editor[Inkstone 编辑器] --> Share[分享弹窗开关]
+  Share --> D1[(Cloudflare D1 shares)]
+  D1 --> Feed["/api/public/blog"]
+  Feed --> Moments["/blog 朋友圈流"]
+  Moments --> Reader["/s/:slug 全文阅读"]
+\`\`\`
+
+## 隐私与收录边界
+
+| 分享状态 | 是否出现在 /blog | 搜索引擎索引 |
+| --- | --- | --- |
+| 公开分享 + 开启上动态 | 是 | 允许收录 |
+| 公开分享 + 关闭上动态 | 否（仅持链接可见） | noindex |
+| 开启访问口令 | 永不展示（SQL 层强制） | noindex |
+
+## 附件图片鉴权重写
+
+私有 R2 / KV 附件在公开动态里会自动带上对应的 \`share\` 参数，确保不暴露未分享的图片资源：
+
+\`\`\`ts
+export function rewriteShareImageUrl(src: string, slug: string): string {
+  const match = /^(\\/api\\/files\\/[0-9a-hjkmnp-tv-z]{26})(?:[?#].*)?$/i.exec(src.trim())
+  return match ? \`\${match[1]}?share=\${encodeURIComponent(slug)}\` : src.trim()
+}
+\`\`\`
+
+## 后续还可以加的小功能
+
+- 支持给常青文章设置自定义短链 slug
+- 增加 \`/rss.xml\` 订阅源，方便 RSS 阅读器追踪更新
+- 公开文章之间的 \`[[WikiLink]]\` 双链自动互跳
+`,
+    "seed.demo_moment_4": `---
+title: 十一月读完的三本好书
+tags: [阅读, 书单]
+---
+
+# 十一月读完的三本好书
+
+1. **《建筑的永恒之道》** — 好的软件和好的房间一样，不是靠宏大蓝图硬凹出来的，而是由一个个解决真实痛点的小模式自然生长出来的。
+2. **《数据密集型应用系统设计》** — 每次做离线同步队列和乐观锁冲突处理，翻回来重读总能把思路重新理顺。
+3. **《建筑模式语言》** — 拿来做界面留白和信息层级参考，意外地非常受用。
+`,
+    "seed.demo_moment_5": `---
+title: 十一月胶片随手拍合集
+tags: [摄影, 生活]
+---
+
+# 十一月胶片随手拍合集
+
+翻了一下相册，挑了六张这个月最喜欢的瞬间：山间晨雾、晨光书桌、落满银杏的湖边、雨天咖啡馆、窗台橘猫和雨后小巷。点击任意一张都可以左右滑动看大图。
+
+![云海晨雾山脊](/demo/mountain-mist.jpg)
+![晨光书桌与手冲咖啡](/demo/coffee-desk.jpg)
+![湖畔金黄银杏大道](/demo/autumn-park.jpg)
+![雨天窗边的拿铁](/demo/rainy-cafe.jpg)
+![窗台书堆旁打盹的橘猫](/demo/books-cat.jpg)
+![雨后微亮的暮色小巷](/demo/night-street.jpg)
+`,
     "seed.welcome_note": `---
 title: 欢迎使用 Inkstone
 tags: [入门, Inkstone]

@@ -964,6 +964,7 @@ export const EN_US_MESSAGES = {
     "share.expires_value0": "Expires {value0}",
     "share.generate_public_link": "Generate public link",
     "share.incorrect_passcode": "Incorrect passcode",
+    "share.in_blog": "In blog",
     "share.in_trash": "In trash",
     "share.enter_a_passcode": "Enter a passcode first",
     "share.passcode_too_short": "The passcode must be at least 4 characters",
@@ -984,6 +985,81 @@ export const EN_US_MESSAGES = {
     "share.public_link": "Public link",
     "share.public_link_created": "Public link created",
     "share.public_links_are_read_only_visitors_can_see_only_the_latest_version_of_t": "Public links are read-only. Visitors can view only the latest content of this note and cannot access other notes.",
+    "share.publish_to_blog": "Show in blog Moments",
+    "share.publish_to_blog_description": "Display this note on the public Moments homepage",
+    "share.publish_to_blog_disabled_passcode": "Turn off passcode protection to publish to the homepage",
+    "share.publish_to_blog_encrypted_description": "Shown as an encrypted Moment on the homepage; visitors must enter the passcode to read it",
+    "blog.actions": "Actions",
+    "blog.all_tags": "All",
+    "blog.appearance_description": "Customize the Moments cover photo, site logo, header title, and subtitle shown on your blog homepage.",
+    "blog.appearance_saved": "Blog appearance saved",
+    "blog.appearance_title": "Blog appearance",
+    "blog.back_to_blog": "Moments",
+    "blog.bio": "Subtitle / signature",
+    "blog.bio_placeholder": "A short note shown under your avatar",
+    "blog.clear_filters": "Clear filters",
+    "blog.collapse_text": "Collapse",
+    "blog.copy_link": "Copy link",
+    "blog.cover_image": "Moments cover image",
+    "blog.cover_placeholder": "Upload a photo or paste an https:// URL",
+    "blog.crop_adjust": "Crop",
+    "blog.crop_confirm": "Crop & upload",
+    "blog.crop_cover_title": "Crop Moments cover",
+    "blog.crop_hint": "Drag to reposition; use the slider or scroll wheel to zoom",
+    "blog.crop_load_failed": "Could not load this image for cropping. Choose a local image file instead.",
+    "blog.crop_logo_title": "Crop rounded site logo",
+    "blog.crop_reset": "Reset",
+    "blog.crop_zoom": "Zoom",
+    "blog.custom_title": "Moments title",
+    "blog.custom_title_placeholder": "Moments",
+    "blog.empty_description": "Open any note in Inkstone, create a public link, and enable Show in blog Moments.",
+    "blog.empty_filtered_description": "Try another tag or clear the search query.",
+    "blog.empty_filtered_title": "No matching moments",
+    "blog.empty_title": "No public moments yet",
+    "blog.encrypted_badge": "Locked",
+    "blog.encrypted_images_hint": "{count} photos inside",
+    "blog.encrypted_moment_hint": "Protected by an access passcode. Enter the passcode to read the full post.",
+    "blog.encrypted_moment_title": "Encrypted Moment",
+    "blog.encrypted_security_hint": "Brute-force protection enabled; repeated wrong attempts trigger automatic cooldown",
+    "blog.expand_text": "Full text",
+    "blog.go_to_notebook": "Open notebook",
+    "blog.image_uploaded": "Image uploaded",
+    "blog.like": "Like",
+    "blog.like_failed": "Could not update like",
+    "blog.liked": "Unlike",
+    "blog.liked_by_you": "You liked this moment",
+    "blog.liked_by_you_and_others": "You and {count} others liked this",
+    "blog.likes_count": "{count} liked this",
+    "blog.load_failed": "Could not load moments",
+    "blog.load_more": "Load more",
+    "blog.loading": "Loading moments…",
+    "blog.loading_more": "Loading…",
+    "blog.logo_image": "Site logo",
+    "blog.logo_placeholder": "Upload a square icon or paste an https:// URL",
+    "blog.moments_count": "{count} moments",
+    "blog.moments_title": "Moments",
+    "blog.more_images": "+{count}",
+    "blog.next_image": "Next image",
+    "blog.no_more_moments": "No more moments",
+    "blog.open_article": "Read article",
+    "blog.open_blog": "Open blog",
+    "blog.open_standalone": "Open standalone page",
+    "blog.pinned": "Pinned",
+    "blog.powered_by": "Powered by {site}",
+    "blog.previous_image": "Previous image",
+    "blog.refresh": "Refresh",
+    "blog.reset_default": "Reset",
+    "blog.retry_after_seconds": "Too many attempts. Try again in {seconds}s",
+    "blog.save_appearance": "Save appearance",
+    "blog.scroll_to_top": "Back to top",
+    "blog.search_placeholder": "Search moments…",
+    "blog.search_toggle": "Search moments",
+    "blog.unlock_moment": "Enter passcode",
+    "blog.unlock_submit": "Unlock & read",
+    "blog.unlocked_badge": "Unlocked",
+    "blog.unlocked_moment_hint": "Unlocked for this session. Click to read full content",
+    "blog.upload_image": "Upload",
+    "blog.views_count": "{count} views",
     "share.refresh_list": "Refresh shared notes",
     "share.require_a_passcode_to_view_this_note": "Require a passcode to view this note",
     "share.revoke_link": "Revoke link",
@@ -1161,6 +1237,105 @@ export const EN_US_MESSAGES = {
     "workspace.upload_failed": "Upload failed",
     "workspace.value0_unchanged_lines_hidden": "… {value0} unchanged lines hidden …",
     "workspace.will_appear_here": "will appear here.",
+    "seed.demo_moment_1": `---
+title: Turning Inkstone into a Moments-style Personal Blog
+tags: [essay, building, Inkstone]
+---
+
+# Turning Inkstone into a Moments-style Personal Blog
+
+Brewed a cup of pour-over coffee this morning and turned my self-hosted Markdown notebook into a WeChat Moments-style blog at \`/blog\`.
+
+Usually I take notes quietly inside Inkstone. Whenever something is worth sharing, flipping one switch in the share dialog publishes it right onto this timeline.
+
+![Morning sunlight on desk with pour-over coffee](/demo/coffee-desk.jpg)
+`,
+    "seed.demo_moment_2": `---
+title: Autumn Weekend Walk: Ginkgo Leaves, Rainy Cafe & Dusk Alley
+tags: [life, photography, weekend]
+---
+
+# Autumn Weekend Walk: Ginkgo Leaves, Rainy Cafe & Dusk Alley
+
+Caught the last golden weekend of November. Walked under ginkgo trees by the lake, waited out a drizzle in a corner cafe with a sleepy tabby cat by the window, and wandered home through warm lantern-lit streets.
+
+![Golden ginkgo park path](/demo/autumn-park.jpg)
+![Rainy afternoon cafe window](/demo/rainy-cafe.jpg)
+![Cat napping beside books](/demo/books-cat.jpg)
+![Lantern alley after rain](/demo/night-street.jpg)
+`,
+    "seed.demo_moment_3": `---
+title: Notes on Adding a Public Moments Feed to Cloudflare Workers + D1
+tags: [tech, Cloudflare, blog]
+---
+
+# Notes on Adding a Public Moments Feed to Cloudflare Workers + D1
+
+Instead of setting up a second static site generator, extending Inkstone's existing share table keeps writing and publishing inside one lightweight Cloudflare Worker.
+
+![Misty mountain sunrise above the clouds](/demo/mountain-mist.jpg)
+
+## Architecture Overview
+
+\`\`\`mermaid
+flowchart LR
+  Editor[Inkstone Editor] --> Share[Share Panel Toggle]
+  Share --> D1[(Cloudflare D1 shares)]
+  D1 --> Feed["/api/public/blog"]
+  Feed --> Moments["/blog Moments UI"]
+  Moments --> Reader["/s/:slug Full Reader"]
+\`\`\`
+
+## Privacy Guardrails
+
+| Scenario | Appears on /blog | Search Indexing |
+| --- | --- | --- |
+| Public share + listed on | Yes | Indexable |
+| Public share + listed off | No | noindex |
+| Passcode protected share | Never (enforced in SQL) | noindex |
+
+## Image Rewriting Helper
+
+\`\`\`ts
+export function rewriteShareImageUrl(src: string, slug: string): string {
+  const match = /^(\\/api\\/files\\/[0-9a-hjkmnp-tv-z]{26})(?:[?#].*)?$/i.exec(src.trim())
+  return match ? \`\${match[1]}?share=\${encodeURIComponent(slug)}\` : src.trim()
+}
+\`\`\`
+
+## Next Ideas
+
+- Custom readable URL slugs for evergreen essays
+- Optional RSS feed at \`/rss.xml\` for feed readers
+- Automatic WikiLink rewriting between published posts
+`,
+    "seed.demo_moment_4": `---
+title: Three Books Finished in November
+tags: [reading, books]
+---
+
+# Three Books Finished in November
+
+1. **The Timeless Way of Building** — Good software, like good rooms, emerges from small patterns that solve real everyday tension.
+2. **Designing Data-Intensive Applications** — Still the clearest mental model for offline queues, conflict resolution, and durable logs.
+3. **A Pattern Language** — Surprisingly inspiring for interface spacing and visual hierarchy.
+`,
+    "seed.demo_moment_5": `---
+title: November Film Roll Highlights
+tags: [photography, life]
+---
+
+# November Film Roll Highlights
+
+Six favorite frames from this month: dawn clouds, quiet desks, autumn leaves, warm rain, and late-night lanes.
+
+![Dawn clouds over mountains](/demo/mountain-mist.jpg)
+![Morning pour-over desk](/demo/coffee-desk.jpg)
+![Ginkgo lakeside path](/demo/autumn-park.jpg)
+![Raindrops at the cafe](/demo/rainy-cafe.jpg)
+![Ginger cat and books](/demo/books-cat.jpg)
+![Lanterns in twilight alley](/demo/night-street.jpg)
+`,
     "seed.welcome_note": `---
 title: Welcome to Inkstone
 tags: [getting-started, Inkstone]

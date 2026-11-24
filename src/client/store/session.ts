@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { DEFAULT_SETTINGS, mergeSettings, mergeSettingsPatch } from '@shared/constants'
 import type { PublicUser, SessionInfo, SiteInfo, TotpLoginChallenge, UserSettings } from '@shared/types'
 import { api, ApiError } from '../lib/api'
+import { applyDocumentBranding, resolveSiteBrandName } from '../lib/branding'
 import { getLocale, setLocale, t } from '../lib/i18n'
 import { localDb } from '../lib/db'
 import { applyThemeToDom, useUi } from './ui'
@@ -20,6 +21,7 @@ interface SessionState {
   refresh: () => Promise<void>
   refreshSettings: () => Promise<void>
   updateProfile: (patch: { name?: string; avatarUrl?: string }) => Promise<PublicUser>
+  updateSiteBranding: (patch: { logoUrl?: string; blogTitle?: string }) => void
   updateRegistration: (enabled: boolean, password: string) => Promise<void>
   logout: () => Promise<void>
   updateSettings: (patch: DeepPartial<UserSettings>, options?: { silent?: boolean }) => void
@@ -175,6 +177,25 @@ export const useSession = create<SessionState>((set, get) => ({
       }
       throw error
     }
+  },
+
+  updateSiteBranding(patch) {
+    const current = get().site
+    if (!current) {
+      applyDocumentBranding({ logoUrl: patch.logoUrl ?? '' })
+      return
+    }
+    const nextSite: SiteInfo = {
+      ...current,
+      logoUrl: patch.logoUrl || undefined,
+      blogTitle: patch.blogTitle || undefined,
+    }
+    set({ site: nextSite })
+    applyDocumentBranding({
+      title: resolveSiteBrandName(nextSite.name, nextSite.blogTitle),
+      logoUrl: nextSite.logoUrl ?? '',
+    })
+    cacheCurrentSession(get())
   },
 
   async updateRegistration(enabled, password) {
@@ -387,6 +408,10 @@ function adopt(info: SessionInfo, set: (partial: Partial<SessionState>) => void)
     site: info.site,
     settings,
     authError: null,
+  })
+  applyDocumentBranding({
+    title: resolveSiteBrandName(info.site.name, info.site.blogTitle),
+    logoUrl: info.site.logoUrl ?? '',
   })
   if (info.user) syncAppearanceToDom(settings)
 }

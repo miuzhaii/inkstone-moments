@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Check, Copy, ExternalLink, Eye, Link2, RefreshCw, Search, Settings2, Trash2 } from 'lucide-react'
+import { Check, Copy, ExternalLink, Eye, Globe, Link2, RefreshCw, Search, Settings2, Trash2 } from 'lucide-react'
 import type { ShareListItem } from '@shared/types'
 import { api } from '../../lib/api'
 import { fullTime } from '../../lib/time'
@@ -10,6 +10,7 @@ import { useNotes } from '../../store/notes'
 import { useUi } from '../../store/ui'
 import { t } from '../../lib/i18n'
 import { SharePanel } from '../share/SharePanel'
+import { BlogAppearanceCard } from './BlogAppearanceCard'
 
 export function SharedNotes() {
   const [shares, setShares] = useState<ShareListItem[] | null>(null)
@@ -119,8 +120,16 @@ export function SharedNotes() {
         <h3 className="text-[11px] font-semibold tracking-[0.06em] text-[var(--text-quaternary)]">{t('share.shared_notes')}</h3>
         <p className="mt-0.5 text-[11.5px] text-[var(--text-tertiary)]">{t('share.shared_notes_description')}</p>
       </div>
-      <Button size="sm" variant="ghost" icon={<RefreshCw size={13}/>} loading={refreshing} onClick={() => void load()} aria-label={t('share.refresh_list')} title={t('share.refresh_list')} />
+      <div className="flex shrink-0 items-center gap-1">
+        <a href="/" target="_blank" rel="noreferrer" className="inline-flex h-7 items-center gap-1 rounded-[var(--r-sm)] border border-[var(--border-default)] px-2.5 text-[11.5px] font-medium text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]">
+          <Globe size={12} />
+          {t('blog.open_blog')}
+        </a>
+        <Button size="sm" variant="ghost" icon={<RefreshCw size={13}/>} loading={refreshing} onClick={() => void load()} aria-label={t('share.refresh_list')} title={t('share.refresh_list')} />
+      </div>
     </div>
+
+    <BlogAppearanceCard />
 
     {shares && shares.length > 0 && <div className="relative mb-2">
       <Search size={14} className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-[var(--text-quaternary)]" />
@@ -152,6 +161,7 @@ export function SharedNotes() {
             </div>
             <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-[var(--text-quaternary)]">
               <span className="inline-flex items-center gap-1"><Eye size={11} />{share.views}{t('share.visits')}</span>
+              {share.listed && !trashed && !expired && <span className="text-[var(--accent)]">{t('share.in_blog')}</span>}
               {share.hasPassword && <span>{t('share.passcode_protected')}</span>}
               <span>{share.expiresAt ? t('share.expires_value0', { value0: fullTime(share.expiresAt) }) : t('share.never_expires_71ab34')}</span>
               <span title={fullTime(share.createdAt)}>{t('common.created')}{fullTime(share.createdAt)}</span>

@@ -11,9 +11,17 @@ import { searchRoutes } from './routes/search'
 import { syncRoutes } from './routes/sync'
 import { filesRoutes } from './routes/files'
 import { avatarRoutes } from './routes/avatars'
+import { blogAssetRoutes } from './routes/blog-assets'
 import { backupRoutes } from './routes/backup'
 import { settingsRoutes } from './routes/settings'
-import { shareManageRoutes, sharePageRoutes, shareRoutes } from './routes/share'
+import {
+  blogPageRoutes,
+  renderBlogShell,
+  renderNotebookShell,
+  shareManageRoutes,
+  sharePageRoutes,
+  shareRoutes,
+} from './routes/share'
 import { transferRoutes } from './routes/transfer'
 import { updateRoutes } from './routes/update'
 import { mcpAuthorizeRoutes } from './routes/mcp-authorize'
@@ -55,10 +63,28 @@ export function createApp() {
     c.set('database', await initializeDatabase(c.env))
     await next()
   })
+  app.use('/', async (c, next) => {
+    c.set('database', await initializeDatabase(c.env))
+    await next()
+  })
   app.use('/s/*', async (c, next) => {
     c.set('database', await initializeDatabase(c.env))
     await next()
   })
+  app.use('/blog', async (c, next) => {
+    c.set('database', await initializeDatabase(c.env))
+    await next()
+  })
+  app.use('/blog/*', async (c, next) => {
+    c.set('database', await initializeDatabase(c.env))
+    await next()
+  })
+  for (const notebookPath of ['/notes', '/notes/*', '/login', '/login/*', '/admin', '/admin/*', '/n/*']) {
+    app.use(notebookPath, async (c, next) => {
+      c.set('database', await initializeDatabase(c.env))
+      await next()
+    })
+  }
   app.use('/authorize', async (c, next) => {
     c.set('database', await initializeDatabase(c.env))
     await next()
@@ -93,6 +119,7 @@ export function createApp() {
   app.route('/api/sync', syncRoutes)
   app.route('/api/files', filesRoutes)
   app.route('/api/avatars', avatarRoutes)
+  app.route('/api/blog-assets', blogAssetRoutes)
   app.route('/api/backup', backupRoutes)
   app.route('/api/settings', settingsRoutes)
   app.route('/api/update', updateRoutes)
@@ -106,7 +133,12 @@ export function createApp() {
   })
 
 
+  app.get('/', (c) => renderBlogShell(c, new URL(c.req.url)))
+  for (const notebookPath of ['/notes', '/notes/*', '/login', '/login/*', '/admin', '/admin/*', '/n/*']) {
+    app.get(notebookPath, (c) => renderNotebookShell(c, new URL(c.req.url)))
+  }
   app.route('/s', sharePageRoutes)
+  app.route('/blog', blogPageRoutes)
   app.route('/', mcpAuthorizeRoutes)
 
 

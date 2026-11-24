@@ -1,2 +1,9 @@
 User-agent: *
-Disallow: /
+Allow: /
+Allow: /blog
+Allow: /s/
+Disallow: /notes
+Disallow: /n/
+Disallow: /admin
+Disallow: /login
+Disallow: /api/

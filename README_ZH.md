@@ -12,8 +12,19 @@
   <a href="./README.md">English</a> ·
   <a href="./CONTRIBUTING.md">参与开发</a> ·
   <a href="./LICENSE">LGPL-3.0-only</a> ·
-  <a href="https://inkstone-demo.pages.dev/">在线体验</a>
+  <a href="https://github.com/shuaiplus/inkstone">上游仓库</a>
 </p>
+
+> [!NOTE]
+> **上游致谢与修改声明（`LGPL-3.0-only`）**
+>
+> 本仓库基于上游开源项目 **[shuaiplus/inkstone](https://github.com/shuaiplus/inkstone)**（基于提交 `f59087f`，于 2026-11 修改扩展）二次开发，继续遵循 [LGPL-3.0-only](./LICENSE) 开源协议。感谢原作者 [@shuaiplus](https://github.com/shuaiplus) 打造了优秀的 Inkstone 自托管笔记本！
+>
+> **本分支主要新增特性：**
+> - **微信朋友圈风格博客主页（`/`）**：支持将指定公开笔记一键展示到首页朋友圈动态流，支持九宫格配图、全屏缩放灯箱、标签筛选、关键词搜索及防刷访客点赞。
+> - **弹窗阅读与加密朋友圈动态**：点击动态卡片或「全文」直接在弹窗内渲染完整 Markdown 阅读；支持同时开启「朋友圈展示 + 访问口令」生成加密动态（未解锁零正文/附件泄露，内置算力预算 + D1 指数退避防爆破冷却机制）。
+> - **公开博客与私人笔记入口分离**：根路径 `/`（兼容 `/blog`）作为朋友圈主页，私人笔记本后台与登录入口独立至 `/notes`（兼容 `/login`、`/admin`、`/n/:id` 并自动附加 `noindex`）。
+> - **自定义博客外观与交互式裁剪**：支持在后台自定义朋友圈背景封面、全站同步的圆角网站 Logo / Favicon、标题与签名，内置拖拽缩放图片裁剪器。
 
 ## 项目简介
 

@@ -94,6 +94,11 @@
   --warning: oklch(80% 0.15 82);
   --danger: oklch(68% 0.185 22);
   --brand-accent: #e0664a;
+  --moments-link: #7d94be;
+  --moments-action-bg: #2f2e2c;
+  --moments-cover-from: #222938;
+  --moments-cover-mid: #32394a;
+  --moments-cover-to: #1b2029;
 
 
   --code-fg: #adbac7;
@@ -146,6 +151,11 @@
   --scrim: oklch(35% 0.01 265 / 32%);
   --selection: color-mix(in oklab, var(--accent) 22%, transparent);
   --brand-accent: #bb4430;
+  --moments-link: #576b95;
+  --moments-action-bg: #4c4c4c;
+  --moments-cover-from: #3b4b63;
+  --moments-cover-mid: #616d82;
+  --moments-cover-to: #2d3748;
 
 
   --code-fg: #24292e;

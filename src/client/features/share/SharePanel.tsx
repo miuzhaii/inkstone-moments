@@ -37,6 +37,7 @@ export function SharePanel({ onClose, targetNote, onChanged }: {
     const [reload, setReload] = useState(0);
     const [password, setPassword] = useState('');
     const [usePassword, setUsePassword] = useState(false);
+    const [listed, setListed] = useState(false);
     const [expiry, setExpiry] = useState('0');
     const [busy, setBusy] = useState<'save' | 'revoke' | null>(null);
     const [copied, setCopied] = useState(false);
@@ -63,6 +64,7 @@ export function SharePanel({ onClose, targetNote, onChanged }: {
         setLoadError(null);
         setPassword('');
         setUsePassword(false);
+        setListed(false);
         setExpiry('0');
         setCopied(false);
         window.clearTimeout(copiedTimer.current);
@@ -73,6 +75,7 @@ export function SharePanel({ onClose, targetNote, onChanged }: {
                 return;
             setShare(res.share);
             setUsePassword(Boolean(res.share?.hasPassword));
+            setListed(Boolean(res.share?.listed));
             setExpiry(res.share?.expiresAt ? KEEP_CURRENT_EXPIRY : '0');
         })
             .catch((error) => {
@@ -114,10 +117,12 @@ export function SharePanel({ onClose, targetNote, onChanged }: {
             const res = await api.share.create(noteId, {
                 password: usePassword ? password || undefined : null,
                 expiresIn: expiresInForSelection(expiry),
+                listed,
             });
             if (mutationEpoch.current !== epoch || noteIdRef.current !== noteId)
                 return;
             setShare(res.share);
+            setListed(res.share.listed);
             setPassword('');
             setExpiry(res.share.expiresAt ? KEEP_CURRENT_EXPIRY : '0');
             onChanged?.();
@@ -146,6 +151,7 @@ export function SharePanel({ onClose, targetNote, onChanged }: {
         const epoch = ++mutationEpoch.current;
         const previousShare = share;
         const previousUsePassword = usePassword;
+        const previousListed = listed;
         const previousExpiry = expiry;
         loadEpoch.current++;
         busyRef.current = 'revoke';
@@ -161,6 +167,7 @@ export function SharePanel({ onClose, targetNote, onChanged }: {
                 return;
             setShare(null);
             setUsePassword(false);
+            setListed(false);
             setExpiry('0');
             await api.share.remove(noteId);
             if (mutationEpoch.current !== epoch || noteIdRef.current !== noteId)
@@ -173,6 +180,7 @@ export function SharePanel({ onClose, targetNote, onChanged }: {
                 return;
             setShare(previousShare);
             setUsePassword(previousUsePassword);
+            setListed(previousListed);
             setExpiry(previousExpiry);
             toast({
                 title: t("common.action_failed"),
@@ -232,6 +240,7 @@ export function SharePanel({ onClose, targetNote, onChanged }: {
                 <span className="flex items-center gap-1">
                   <Eye size={11}/>
                   {share.views}{t("share.visits")}</span>
+                {share.listed && <Badge tone="accent">{t("share.in_blog")}</Badge>}
                 {share.hasPassword && <Badge tone="warning">{t("share.passcode_protected")}</Badge>}
                 {share.expiresAt ? (<span className={cn(share.expiresAt < Date.now() && 'text-[var(--danger)]')}>
                     {share.expiresAt < Date.now()
@@ -240,6 +249,22 @@ export function SharePanel({ onClose, targetNote, onChanged }: {
                 <span className="ml-auto">{t("common.created")}{createdTime}</span>
               </div>
             </div>)}
+
+          <div className="flex items-center justify-between gap-4 py-1">
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5 text-[13px] font-medium">
+                <Globe size={12} className="text-[var(--text-tertiary)]"/>{t("share.publish_to_blog")}
+                {share?.listed && (<a href="/" target="_blank" rel="noreferrer" className="inline-flex items-center gap-0.5 text-[11.5px] font-normal text-[var(--accent)] hover:underline">
+                    {t("blog.open_blog")}
+                    <ExternalLink size={10}/>
+                  </a>)}
+              </div>
+              <p className="mt-0.5 text-[11.5px] text-[var(--text-tertiary)]">
+                {usePassword ? t("share.publish_to_blog_encrypted_description") : t("share.publish_to_blog_description")}
+              </p>
+            </div>
+            <Switch checked={listed} disabled={busy !== null} onChange={setListed} label={t("share.publish_to_blog")}/>
+          </div>
 
           <div className="flex items-center justify-between gap-4 py-1">
             <div className="min-w-0">

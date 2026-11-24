@@ -46,11 +46,6 @@
                   ? 'zh-CN'
                   : 'en-US'
           root.lang = locale
-          document.title = 'Inkstone'
-          var description = document.querySelector('meta[name="description"]')
-          if (description) {
-            description.content = 'A private, self-hosted Markdown notebook built on Cloudflare.'
-          }
           if (saved && saved.fontScale) {
             root.style.setProperty('--prose-size', saved.fontScale + 'px')
           }

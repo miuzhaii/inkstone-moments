@@ -4,11 +4,14 @@ import { duplicateNoteTitle, utf8ByteLength } from '@shared/text-utils'
 import { organizerColorOrNull } from '@shared/organizer-colors'
 import {
   deriveExcerpt,
+  deriveMomentsPreview,
   deriveTitle,
   extractAttachmentIds,
+  extractMarkdownImages,
   extractWikiLinks,
   normalizeLinkKey,
   replaceTagInContent,
+  rewriteShareImageUrl,
   wikiNoteTarget,
 } from '@shared/markdown-utils'
 import type {
@@ -26,6 +29,9 @@ import type {
   McpSettingsInfo,
   Note,
   NoteVersion,
+  PublicBlogPost,
+  PublicBlogResponse,
+  PublicBlogTag,
   PublicNote,
   SearchResponse,
   SessionInfo,
@@ -786,6 +792,33 @@ export function createDemoBackend(): DemoBackend {
       })
       .sort((a, b) => b.createdAt - a.createdAt || b.slug.localeCompare(a.slug)),
   }))
+  app.get('/api/share/blog-settings', (c) =>
+    c.json({ settings: state.blogSettings, canManage: state.user.role === 'owner' }),
+  )
+  app.put('/api/share/blog-settings', async (c) => {
+    const body = await jsonBody(c.req.raw)
+    state.blogSettings = {
+      coverUrl: typeof body.coverUrl === 'string' ? body.coverUrl.trim() : state.blogSettings.coverUrl,
+      logoUrl: typeof body.logoUrl === 'string' ? body.logoUrl.trim() : state.blogSettings.logoUrl,
+      title: typeof body.title === 'string' ? body.title.trim() : state.blogSettings.title,
+      bio: typeof body.bio === 'string' ? body.bio.trim() : state.blogSettings.bio,
+    }
+    return c.json({ settings: state.blogSettings })
+  })
+  app.post('/api/share/blog-settings/upload', async (c) => {
+    const form = await c.req.formData()
+    const kind = form.get('kind')
+    const file = form.get('file')
+    if ((kind !== 'cover' && kind !== 'logo') || !(file instanceof File)) {
+      return apiError(400, 'bad_request', 'Invalid upload')
+    }
+    const url = URL.createObjectURL(file)
+    state.blogSettings = {
+      ...state.blogSettings,
+      ...(kind === 'cover' ? { coverUrl: url } : { logoUrl: url }),
+    }
+    return c.json({ url, settings: state.blogSettings })
+  })
   app.get('/api/share/:noteId', (c) => {
     const share = state.shares.get(c.req.param('noteId'))
     return c.json({ share: share ? absoluteShare(share.info, c.req.url) : null })
@@ -818,9 +851,15 @@ export function createDemoBackend(): DemoBackend {
     if (typeof body.password === 'string' && body.password.length > 0 && body.password.length < 4) {
       return apiError(400, 'bad_request', 'The access password must be at least 4 characters')
     }
+    if (body.listed !== undefined && typeof body.listed !== 'boolean') {
+      return apiError(400, 'bad_request', 'listed must be a boolean')
+    }
     const password = body.password === null || typeof body.password === 'string'
       ? body.password || null
       : existing?.password ?? null
+    const listed = typeof body.listed === 'boolean'
+      ? body.listed
+      : existing?.info.listed ?? false
     const info: ShareInfo = {
       slug: existing?.info.slug ?? `demo-${noteId}`,
       noteId,
@@ -828,14 +867,113 @@ export function createDemoBackend(): DemoBackend {
       hasPassword: Boolean(password),
       expiresAt,
       views: existing?.info.views ?? 0,
+      listed,
       createdAt: existing?.info.createdAt ?? Date.now(),
     }
-    state.shares.set(noteId, { info, password })
+    state.shares.set(noteId, { info, password, likes: existing?.likes ?? 0 })
     return c.json({ share: absoluteShare(info, c.req.url) })
   })
   app.delete('/api/share/:noteId', (c) => {
     state.shares.delete(c.req.param('noteId'))
     return c.json({ ok: true as const })
+  })
+  app.post('/api/public/blog/:slug/like', async (c) => {
+    const share = [...state.shares.values()].find((item) => item.info.slug === c.req.param('slug'))
+    if (!share || !share.info.listed) {
+      return apiError(404, 'not_found', 'Moment not found')
+    }
+    const body = await jsonBody(c.req.raw)
+    const delta = body.action === 'unlike' ? -1 : 1
+    share.likes = Math.max(0, share.likes + delta)
+    return c.json({ slug: share.info.slug, likes: share.likes })
+  })
+  app.get('/api/public/blog', (c) => {
+    const now = Date.now()
+    const tagFilter = (c.req.query('tag') ?? '').trim().toLocaleLowerCase()
+    const searchQuery = (c.req.query('q') ?? '').trim().toLocaleLowerCase()
+    const limit = Math.max(1, Math.min(50, Number(c.req.query('limit')) || 20))
+    const allListed = [...state.shares.values()]
+      .filter((share) => {
+        if (!share.info.listed) return false
+        if (share.info.expiresAt !== null && share.info.expiresAt <= now) return false
+        const note = state.notes.get(share.info.noteId)
+        return Boolean(note && note.deletedAt === null)
+      })
+      .map((share) => ({ share, note: state.notes.get(share.info.noteId)! }))
+
+    const tagCounts = new Map<string, number>()
+    for (const item of allListed) {
+      for (const tag of item.note.tags) tagCounts.set(tag, (tagCounts.get(tag) ?? 0) + 1)
+    }
+    const tags: PublicBlogTag[] = [...tagCounts.entries()]
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name))
+
+    const filtered = allListed
+      .filter(({ share, note }) => {
+        if (tagFilter && !note.tags.some((tag) => tag.toLocaleLowerCase() === tagFilter)) return false
+        if (
+          searchQuery &&
+          !note.title.toLocaleLowerCase().includes(searchQuery) &&
+          (share.password !== null || !note.content.toLocaleLowerCase().includes(searchQuery))
+        ) {
+          return false
+        }
+        return true
+      })
+      .sort((left, right) =>
+        Number(right.note.isPinned) - Number(left.note.isPinned) ||
+        right.share.info.createdAt - left.share.info.createdAt ||
+        right.share.info.slug.localeCompare(left.share.info.slug),
+      )
+
+    const page = filtered.slice(0, limit)
+    const posts: PublicBlogPost[] = page.map(({ share, note }) => {
+      const locked = Boolean(share.password)
+      const allImages = extractMarkdownImages(note.content)
+      const images = locked
+        ? []
+        : allImages.slice(0, 9).map((image) => ({
+            src: rewriteShareImageUrl(image.src, share.info.slug),
+            alt: image.alt,
+          }))
+      const preview = locked ? null : deriveMomentsPreview(note.content, note.title)
+      return {
+        slug: share.info.slug,
+        title: note.title,
+        locked,
+        previewText: preview ? preview.text : '',
+        hasMoreContent: locked ? true : Boolean(preview?.truncated || preview?.hasRichBlocks),
+        images,
+        imageCount: allImages.length,
+        tags: note.tags,
+        wordCount: note.wordCount,
+        isPinned: note.isPinned,
+        views: share.info.views,
+        likes: share.likes,
+        publishedAt: share.info.createdAt,
+        updatedAt: note.updatedAt,
+        createdAt: note.createdAt,
+        author: { name: state.user.name, avatarUrl: state.user.avatarUrl },
+      }
+    })
+
+    const payload: PublicBlogResponse = {
+      profile: {
+        name: state.user.name,
+        avatarUrl: state.user.avatarUrl,
+        siteName: 'Inkstone Demo',
+        blogTitle: state.blogSettings.title,
+        bio: state.blogSettings.bio,
+        coverUrl: state.blogSettings.coverUrl,
+        logoUrl: state.blogSettings.logoUrl,
+        totalPosts: allListed.length,
+      },
+      tags,
+      posts,
+      nextCursor: null,
+    }
+    return c.json(payload)
   })
   app.post('/api/public/:slug', async (c) => {
     const share = [...state.shares.values()].find((item) => item.info.slug === c.req.param('slug'))
@@ -855,7 +993,7 @@ export function createDemoBackend(): DemoBackend {
       updatedAt: note.updatedAt,
       createdAt: note.createdAt,
       author: { name: state.user.name, avatarUrl: state.user.avatarUrl },
-      site: { name: 'Inkstone Demo' },
+      site: { name: 'Inkstone Demo', logoUrl: state.blogSettings.logoUrl || undefined },
       share: { slug: share.info.slug },
     }
     return c.json(response)

@@ -16,7 +16,7 @@ const focusChanged = StateEffect.define<boolean>();
 const refresh = StateEffect.define<boolean>();
 
 class RenderedBlock extends WidgetType {
-    constructor(readonly block: MarkdownBlock, readonly source: string, readonly revision: number, readonly title: string) { super(); }
+    constructor(readonly block: MarkdownBlock, readonly source: string, readonly revision: number, readonly title: string, readonly headings: Heading[]) { super(); }
     eq(other: RenderedBlock) {
         return this.block.html === other.block.html && this.block.startLine === other.block.startLine
             && this.block.endLine === other.block.endLine && this.revision === other.revision && this.title === other.title
@@ -80,6 +80,22 @@ class RenderedBlock extends WidgetType {
                 else if (parsed.noteTitle) void useNotes.getState().createNote({ title: parsed.noteTitle });
                 return;
             }
+            const hashLink = target.closest<HTMLAnchorElement>('a[href^="#"]');
+            if (hashLink) {
+                event.preventDefault();
+                const rawHash = hashLink.getAttribute('href')!.slice(1);
+                let decodedHash = rawHash;
+                try { decodedHash = decodeURIComponent(rawHash); } catch {}
+                const matchedHeading = this.headings.find((item) => item.slug === decodedHash || item.slug === rawHash);
+                if (matchedHeading) {
+                    const targetLine = view.state.doc.line(Math.min(matchedHeading.line + 1, view.state.doc.lines));
+                    view.dispatch({ effects: EditorView.scrollIntoView(targetLine.from, { y: 'start' }) });
+                } else {
+                    const domTarget = view.dom.querySelector<HTMLElement>(`#${CSS.escape(decodedHash)}`);
+                    domTarget?.scrollIntoView({ block: 'start' });
+                }
+                return;
+            }
             if ((event.metaKey || event.ctrlKey) && target.closest('a[href]')) return;
             event.preventDefault();
             // Preserve the source line under the pointer, including rows inside tables/lists.
@@ -122,7 +138,7 @@ function decorate(state: EditorState, live: LiveState, title: string): Decoratio
         const active = state.selection.ranges.some((range) =>
             (live.focused || !range.empty) && range.from <= to && range.to >= from);
         if (active || from === to) continue;
-        ranges.push(Decoration.replace({ block: true, widget: new RenderedBlock(block, source, live.revision, title) }).range(from, to));
+        ranges.push(Decoration.replace({ block: true, widget: new RenderedBlock(block, source, live.revision, title, live.headings) }).range(from, to));
     }
     return Decoration.set(ranges, true);
 }

@@ -8,6 +8,7 @@ import { api, ApiError } from '../../lib/api'
 import { cn } from '../../lib/cn'
 import { t, useLocale } from '../../lib/i18n'
 import { renderMarkdown } from '../../lib/markdown/renderer'
+import { preferredScrollBehavior } from '../../lib/motion'
 import {
   enhancePreview,
   renderPendingMermaid,
@@ -265,6 +266,20 @@ export function MomentReaderModal({
     if (tabButton) {
       event.preventDefault()
       selectMarkdownTab(tabButton)
+      return
+    }
+
+    const anchor = target.closest<HTMLAnchorElement>('a[href^="#"]')
+    if (anchor) {
+      event.preventDefault()
+      const rawId = anchor.getAttribute('href')!.slice(1)
+      let id = rawId
+      try {
+        id = decodeURIComponent(rawId)
+      } catch {
+      }
+      const heading = hostRef.current?.querySelector(`#${CSS.escape(id)}`)
+      heading?.scrollIntoView({ behavior: preferredScrollBehavior(), block: 'start' })
       return
     }
 

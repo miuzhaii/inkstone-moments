@@ -201,6 +201,20 @@ export function SharePage({ slug }: {
             selectMarkdownTab(tabButton);
             return;
         }
+        const anchor = target.closest<HTMLAnchorElement>('a[href^="#"]');
+        if (anchor) {
+            event.preventDefault();
+            const rawId = anchor.getAttribute('href')!.slice(1);
+            let id = rawId;
+            try {
+                id = decodeURIComponent(rawId);
+            }
+            catch {
+            }
+            const heading = hostRef.current?.querySelector(`#${CSS.escape(id)}`);
+            heading?.scrollIntoView({ behavior: preferredScrollBehavior(), block: 'start' });
+            return;
+        }
         const image = target.closest<HTMLImageElement>('img');
         if (image?.src) {
             event.preventDefault();
